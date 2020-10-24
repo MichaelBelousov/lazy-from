@@ -4,7 +4,7 @@
   "compilerOptions": {
     "rootDir": ".",
     "target": "ES6",
-    "module": "es6",
+    "module": "commonjs",
     "lib": ["ESNext"],
     "noImplicitAny": true,
     "esModuleInterop": true,

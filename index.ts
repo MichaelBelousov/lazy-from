@@ -113,6 +113,10 @@ export default class Lazy<T> implements Iterable<T> {
         return result
     }
 
+    public toArray(): T[] {
+        return [...this]
+    }
+
     public some(predicate: (t: T) => boolean): boolean {
         for (const item of this)
             if (predicate(item)) return true
