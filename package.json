@@ -2,7 +2,8 @@
   "name": "lazy-from",
   "version": "0.1.0",
   "description": "like Array.from but lazy evaluation",
-  "main": "index.js",
+  "main": "lib/index.js",
+  "typings": "lib/index",
   "scripts": {
     "build": "tsc -b",
     "test": "jest"

@@ -1,21 +1,21 @@
 {
   "include": ["."],
-  "exclude": [".import", "godot", "**/*.test.ts", "**/*.test.tsx"],
+  "exclude": ["**/*.test.ts", "**/*.test.tsx", "node_modules", "lib"],
   "compilerOptions": {
     "rootDir": ".",
     "target": "ES6",
     "module": "es6",
     "lib": ["ESNext"],
     "noImplicitAny": true,
-    "removeComments": true,
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-    "jsx": "preserve",
     "esModuleInterop": true,
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "alwaysStrict": true,
+    "strict": true,
+    "declarationMap": true,
+    "declaration": true,
     "inlineSourceMap": true,
-    "strict": true
+    "outDir": "lib",
+    "incremental": true
   }
 }

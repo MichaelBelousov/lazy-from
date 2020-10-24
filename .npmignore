@@ -1,0 +1,5 @@
+*
+!*.md
+!lib/**/*.d.ts
+!lib/**/*.js
+!lib/**/*.map
