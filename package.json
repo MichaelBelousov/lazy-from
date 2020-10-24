@@ -4,6 +4,7 @@
   "description": "like Array.from but lazy evaluation",
   "main": "index.js",
   "scripts": {
+    "build": "tsc -b",
     "test": "jest"
   },
   "repository": {
@@ -16,9 +17,14 @@
     "generators"
   ],
   "author": "Michael Belousov",
+  "//note": "I intend to make this public domain eventually",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/MichaelBelousov/lazy-from/issues"
   },
-  "homepage": "https://github.com/MichaelBelousov/lazy-from#readme"
+  "homepage": "https://github.com/MichaelBelousov/lazy-from#readme",
+  "devDependencies": {
+    "jest": "^26.6.1",
+    "typescript": "^4.0.3"
+  }
 }

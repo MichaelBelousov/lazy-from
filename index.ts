@@ -39,6 +39,16 @@ export default class Lazy<T> implements Iterable<T> {
         })
     }
 
+    public flat(this: Lazy<Iterable<Iterable<Iterable<Iterable<Iterable<Iterable<Iterable<Iterable<T>>>>>>>>>, depth: 7): Lazy<T>;
+    public flat(this: Lazy<Iterable<Iterable<Iterable<Iterable<Iterable<Iterable<Iterable<T>>>>>>>>, depth: 6): Lazy<T>;
+    public flat(this: Lazy<Iterable<Iterable<Iterable<Iterable<Iterable<Iterable<T>>>>>>>, depth: 5): Lazy<T>;
+    public flat(this: Lazy<Iterable<Iterable<Iterable<Iterable<Iterable<T>>>>>>, depth: 4): Lazy<T>;
+    public flat(this: Lazy<Iterable<Iterable<Iterable<Iterable<T>>>>>, depth: 3): Lazy<T>;
+    public flat(this: Lazy<Iterable<Iterable<Iterable<T>>>>,  depth: 2): Lazy<T>;
+    public flat(this: Lazy<Iterable<Iterable<T>>>, depth?: 1): Lazy<T>;
+    public flat(this: Lazy<Iterable<T>>, depth: 0): Lazy<T>;
+    public flat(depth?: number): Lazy<any>;
+    /** @see Array.prototype.from */
     public flat(depth=1) {
         const _this = this
         if (depth <= 0) return this
@@ -85,10 +95,12 @@ export default class Lazy<T> implements Iterable<T> {
     }
 
     public reduce<Result>(callback: (prev: Result, curr: T, index: number) => Result, initial?: Result): Result {
-        let result = initial
+        // FIXME: perhaps there's a better way to use typings here
+        let result: Result = initial!;
         let i = 0
         for (const curr of this) {
-            result = callback(result, curr, i)
+            if (i === 0 && initial === undefined) result = curr as any;
+            else result = callback(result!, curr, i)
             i++
         }
         return result
@@ -113,7 +125,7 @@ export default class Lazy<T> implements Iterable<T> {
     
     public empty(): boolean {
         const item = this[Symbol.iterator]().next()
-        return item.done
+        return !!item.done
     }
 
     public sort(...[sortFunc]: Parameters<Array<T>["sort"]>) {

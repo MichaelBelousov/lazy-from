@@ -1,1 +1,11 @@
+# node
+node_modules
+
+# dependency lock files
+# I'm against package lock personally, I just like to store the package-lock of CI builds
+pnpm-lock.json
+package-lock.json
+yarn.lock
+
+# typescript
 *.js
