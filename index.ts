@@ -86,6 +86,7 @@ export default class Lazy<T> implements Iterable<T> {
 
   public take(n: number): Lazy<T> {
     const _this = this
+    // NOTE: perhaps (function*(){}()) is more idiomatic than {*[Symbol.iterator](){}}?
     return Lazy.from({
       *[Symbol.iterator]() {
         let i = 0
@@ -141,7 +142,7 @@ export default class Lazy<T> implements Iterable<T> {
   }
 
   public every(predicate: (t: T) => boolean): boolean {
-    return !this.some((t) => !predicate(t))
+    return !this.some(t => !predicate(t))
   }
 
   public empty(): boolean {

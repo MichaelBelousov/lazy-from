@@ -1,6 +1,8 @@
 import Lazy from '.'
 
 // tests require node.js>=12 for Array.prototype.flat
+// TODO: should probably add some fuzzing tests with
+// good output testing Array.prototype vs Lazy.prototype
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -50,6 +52,17 @@ expect.extend({
   },
 })
 
+const lazy123 = Lazy.from({
+  *[Symbol.iterator]() {
+    yield 1
+    yield 2
+    yield 3
+  },
+}) as Lazy<number>
+
+// eslint-disable-next-line @typescript-eslint/no-empty-function
+const emptyGenerator = (function* () {})()
+
 describe('Lazy', () => {
   it('iterable can reiterate', () => {
     const iterable = {
@@ -66,16 +79,16 @@ describe('Lazy', () => {
 
 describe('Lazy.prototype.filter', () => {
   it('smoke', () => {
-    const array = [1, 2, 3].filter((x) => x * 3)
-    const lazy = Lazy.from([1, 2, 3].filter((x) => x * 3))
+    const array = [1, 2, 3].filter(x => x > 1)
+    const lazy = Lazy.from([1, 2, 3].filter(x => x > 1))
     expect(lazy).toIterateEqually(array)
   })
 })
 
 describe('Lazy.prototype.map', () => {
   it('smoke', () => {
-    const array = [1, 2, 3].filter((x) => x > 1)
-    const lazy = Lazy.from([1, 2, 3].filter((x) => x > 1))
+    const array = [1, 2, 3].map(x => x * 3)
+    const lazy = Lazy.from([1, 2, 3].map(x => x * 3))
     expect(lazy).toIterateEqually(array)
   })
 })
@@ -120,17 +133,26 @@ describe('Lazy.prototype.concat', () => {
 describe('Lazy.prototype.forEach', () => {
   it('items', () => {
     const array = [1, 2, 3]
-    const lazy = Lazy.from({
-      *[Symbol.iterator]() {
-        yield* [1, 2, 3]
-      },
-    })
+    const lazy = lazy123
     const func = jest.fn()
     array.forEach(func)
     expect(func).toBeCalledTimes(array.length)
     func.mockReset()
     lazy.forEach(func)
     expect(func).toBeCalledTimes(3)
+  })
+})
+
+describe('Lazy.prototype.take', () => {
+  it('from infinite', () => {
+    const naturals = {
+      *[Symbol.iterator]() {
+        for (let i = 0; true; i++) yield i
+      },
+    }
+    const size = 1000
+    const lazy = Lazy.from(naturals).take(size)
+    expect(Array.from(lazy)).toHaveLength(size)
   })
 })
 
@@ -142,22 +164,14 @@ describe('Lazy.prototype.reduce', () => {
 
   it('sum with initial', () => {
     const array = [1, 2, 3]
-    const lazy = Lazy.from({
-      *[Symbol.iterator]() {
-        yield* [1, 2, 3]
-      },
-    })
+    const lazy = lazy123
     const args = [(acc: number, x: number) => acc + x, 10] as const
     expect(lazy.reduce(...args)).toEqual(array.reduce(...args))
   })
 
   it('sum without initial', () => {
     const array = [1, 2, 3]
-    const lazy = Lazy.from({
-      *[Symbol.iterator]() {
-        yield* [1, 2, 3]
-      },
-    })
+    const lazy = lazy123
     const args = [(acc: number, x: number) => acc + x] as const
     expect(lazy.reduce(...args)).toEqual(array.reduce(...args))
   })
@@ -177,23 +191,125 @@ describe('Lazy.prototype.reduce', () => {
   })
 })
 
-describe('Lazy.prototype.take', () => {
-  it('from infinite', () => {
-    const naturals = {
-      *[Symbol.iterator]() {
-        for (let i = 0; true; i++) yield i
-      },
-    }
-    const size = 1000
-    const lazy = Lazy.from(naturals).take(size)
-    expect(Array.from(lazy)).toHaveLength(size)
+describe('Lazy.prototype.toSet', () => {
+  it('smoke', () => {
+    expect(Lazy.from([]).toSet() instanceof Set).toBeTruthy()
+  })
+})
+
+describe('Lazy.prototype.toArray', () => {
+  it('smoke', () => {
+    expect(lazy123.toArray()).toIterateEqually([1, 2, 3])
+  })
+})
+
+describe('Lazy.prototype.some', () => {
+  const array_result = [1, 2, 3].some(x => x == 3)
+  const lazy_result = Lazy.from([1, 2, 3]).some(x => x == 3)
+
+  it('matches array', () => {
+    expect(lazy_result).toEqual(array_result)
+  })
+
+  it('true', () => {
+    expect(lazy_result).toBeTruthy()
+  })
+
+  it('false', () => {
+    const lazy_false_result = Lazy.from([1, 2, 3]).some(x => x == 0)
+    expect(lazy_false_result).toBeFalsy()
+  })
+})
+
+describe('Lazy.prototype.every', () => {
+  const array_result = [1, 2, 3].every(x => x >= 1)
+  const lazy_result = Lazy.from([1, 2, 3]).some(x => x >= 1)
+
+  it('matches array', () => {
+    expect(lazy_result).toEqual(array_result)
+  })
+
+  it('true', () => {
+    expect(lazy_result).toBeTruthy()
+  })
+
+  it('false', () => {
+    const lazy_false_result = Lazy.from([1, 2, 3]).every(x => x != 3)
+    expect(lazy_false_result).toBeFalsy()
+  })
+})
+
+describe('Lazy.prototype.empty', () => {
+  it('empty generator', () => {
+    expect(Lazy.from(emptyGenerator).take(0).empty()).toBeTruthy()
+  })
+
+  it('empty array', () => {
+    expect(Lazy.from([]).take(0).empty()).toBeTruthy()
+  })
+
+  it('empty set', () => {
+    expect(Lazy.from(new Set<string>()).take(0).empty()).toBeTruthy()
+  })
+
+  it('take 0', () => {
+    expect(Lazy.from([1]).take(0).empty()).toBeTruthy()
+  })
+})
+
+describe('Lazy.prototype.sort', () => {
+  const numeric = [23, 2, 5, 3, 10, -200]
+  it('matches array default', () => {
+    expect(Lazy.from(numeric).sort()).toIterateEqually(numeric.slice().sort())
+  })
+
+  it('matches array (a,b)=>a-b', () => {
+    const cmp = (a: number, b: number) => a - b
+    expect(Lazy.from(numeric).sort(cmp)).toIterateEqually(
+      numeric.slice().sort(cmp)
+    )
   })
 })
 
 describe('Lazy.prototype.length', () => {
-  it('from array', () => {
+  it('matches array', () => {
+    const array = [1, 2, 3]
+    expect(Lazy.from(array)).toHaveLength(array.length)
+    expect(Lazy.from(array)).toHaveLength(3)
+  })
+
+  it('matches filtered array', () => {
+    const array = new Array(100)
+      .fill(undefined)
+      .map((_, i) => i)
+      .filter(x => x % 3 == 0)
+    expect(Lazy.from(array)).toHaveLength(array.length)
+  })
+
+  it('matches constructed array', () => {
     const size = 100
     const array = new Array(size).fill(null)
     expect(Lazy.from(array).length).toEqual(array.length)
+  })
+})
+
+describe('Lazy.prototype.includes', () => {
+  const array = [1, 2, 3, 1, 1]
+  it('from array', () => {
+    expect(Lazy.from(array).includes(1)).toBeTruthy()
+    expect(Lazy.from(array).includes(2)).toBeTruthy()
+    expect(Lazy.from(array).includes(3)).toBeTruthy()
+    expect(Lazy.from(array).includes(4)).toBeFalsy()
+    expect(Lazy.from(array).includes(5)).toBeFalsy()
+    expect(Lazy.from(array).includes(6)).toBeFalsy()
+  })
+
+  it('from generator', () => {
+    expect(Lazy.from(lazy123).includes(1)).toBeTruthy()
+    expect(Lazy.from(lazy123).includes(2)).toBeTruthy()
+    expect(Lazy.from(lazy123).includes(3)).toBeTruthy()
+    expect(Lazy.from(lazy123).includes(4)).toBeFalsy()
+    expect(Lazy.from(lazy123).includes(5)).toBeFalsy()
+    expect(Lazy.from(lazy123).includes(6)).toBeFalsy()
   })
 })
