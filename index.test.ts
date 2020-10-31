@@ -80,7 +80,7 @@ describe('Lazy', () => {
 describe('Lazy.prototype.filter', () => {
   it('smoke', () => {
     const array = [1, 2, 3].filter(x => x > 1)
-    const lazy = Lazy.from([1, 2, 3].filter(x => x > 1))
+    const lazy = Lazy.from([1, 2, 3]).filter(x => x > 1)
     expect(lazy).toIterateEqually(array)
   })
 })
@@ -88,7 +88,7 @@ describe('Lazy.prototype.filter', () => {
 describe('Lazy.prototype.map', () => {
   it('smoke', () => {
     const array = [1, 2, 3].map(x => x * 3)
-    const lazy = Lazy.from([1, 2, 3].map(x => x * 3))
+    const lazy = Lazy.from([1, 2, 3]).map(x => x * 3)
     expect(lazy).toIterateEqually(array)
   })
 })
@@ -311,6 +311,24 @@ describe('Lazy.prototype.includes', () => {
     expect(Lazy.from(lazy123).includes(4)).toBeFalsy()
     expect(Lazy.from(lazy123).includes(5)).toBeFalsy()
     expect(Lazy.from(lazy123).includes(6)).toBeFalsy()
+  })
+})
+
+describe('Lazy.prototype.find', () => {
+  const array = ['hello', 'world', undefined]
+  it('matches array', () => {
+    expect(Lazy.from(array).find(x => x === 'hello')).toEqual(
+      array.find(x => x === 'hello')
+    )
+    expect(Lazy.from(array).find(x => x === 'world')).toEqual(
+      array.find(x => x === 'world')
+    )
+    expect(Lazy.from(array).find(x => x === 'else')).toEqual(
+      array.find(x => x === 'else')
+    )
+    expect(Lazy.from(array).find(x => x === undefined)).toEqual(
+      array.find(x => x === undefined)
+    )
   })
 })
 

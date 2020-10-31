@@ -10,4 +10,7 @@ yarn.lock
 # typescript
 *.js
 lib/
+
+#jest
+/coverage
 !jest.config.js

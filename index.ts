@@ -18,11 +18,16 @@ export default class Lazy<T> implements Iterable<T> {
     return this.iterable[Symbol.iterator]()
   }
 
-  public filter<U extends T>(predicate: (t: T) => t is U): Lazy<U> {
+  public filter(predicate: (t: T) => boolean): Lazy<T>
+  public filter<U extends T>(predicate: (t: T) => t is U): Lazy<U>
+  public filter<U extends T>(predicate: (t: T) => unknown): Lazy<U> {
     const _this = this
     return Lazy.from({
       *[Symbol.iterator]() {
-        for (const t of _this) if (predicate(t)) yield t
+        for (const t of _this) {
+          console.log('yooo!')
+          if (predicate(t)) yield t as U
+        }
       },
     })
   }
