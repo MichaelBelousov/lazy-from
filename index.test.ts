@@ -1,5 +1,7 @@
 import Lazy from '.'
 
+// tests require node.js>=12 for Array.prototype.flat
+
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace jest {
@@ -63,27 +65,36 @@ describe('Lazy', () => {
   })
 })
 
-describe('Lazy.prototype.map', () => {
+describe('Lazy.prototype.filter', () => {
   it('smoke', () => {
-    const iterator = Lazy.from([1, 2, 3])
-      .map((x) => x * 3)
-      [Symbol.iterator]()
-    expect(iterator.next().value).toEqual(3)
-    expect(iterator.next().value).toEqual(6)
-    expect(iterator.next().value).toEqual(9)
-    expect(iterator.next().done).toEqual(true)
+    const array = [1, 2, 3].filter((x) => x * 3)
+    const lazy = Lazy.from([1, 2, 3].filter((x) => x * 3))
+    expect(lazy).toIterateEqually(array)
   })
 })
 
-describe('Lazy.prototype.filter', () => {
+describe('Lazy.prototype.map', () => {
   it('smoke', () => {
-    const iterator = Lazy.from([1, 2, 3])
-      .map((x) => x * 3)
-      [Symbol.iterator]()
-    expect(iterator.next().value).toEqual(3)
-    expect(iterator.next().value).toEqual(6)
-    expect(iterator.next().value).toEqual(9)
-    expect(iterator.next().done).toEqual(true)
+    const array = [1, 2, 3].filter((x) => x > 1)
+    const lazy = Lazy.from([1, 2, 3].filter((x) => x > 1))
+    expect(lazy).toIterateEqually(array)
+  })
+})
+
+describe('Lazy.prototype.flat', () => {
+  const source = [[], [1, 2, 3], [[4, 5], 6], 7]
+  it('arbitrary-depth', () => {
+    expect([...Lazy.from(source).flat(undefined)]).toEqual(
+      source.flat(undefined)
+    )
+  })
+
+  it('depth 1', () => {
+    expect([...Lazy.from(source).flat()]).toEqual(source.flat())
+  })
+
+  it('depth 2', () => {
+    expect([...Lazy.from(source).flat(2)]).toEqual(source.flat(2))
   })
 })
 
