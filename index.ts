@@ -98,6 +98,18 @@ export default class Lazy<T> implements Iterable<T> {
     })
   }
 
+  // TODO: add reduceRight
+  // TODO: allow a reference to the iterable as the 4th callback
+  // arg like Array.prototype.reduce
+  public reduce(callback: (prev: T, curr: T, index: number) => T): T
+  public reduce(callback: (prev: T, curr: T, index: number) => T, initial: T): T
+  public reduce<Result>(
+    callback: (prev: Result, curr: T, index: number) => Result,
+    initial: Result
+  ): Result
+  public reduce<Result>(
+    callback: (prev: Result, curr: T, index: number) => Result
+  ): Result
   public reduce<Result>(
     callback: (prev: Result, curr: T, index: number) => Result,
     initial?: Result

@@ -6,6 +6,8 @@
   "typings": "lib/index",
   "scripts": {
     "build": "tsc -b",
+    "format": "prettier --write *.ts",
+    "lint": "eslint --fix *.ts",
     "test": "jest"
   },
   "repository": {

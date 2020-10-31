@@ -12,7 +12,6 @@ declare global {
   }
 }
 
-// extend an expect matcher "toBeUnreachable"
 expect.extend({
   toIterateEqually(received: Iterable<any>, expected: Iterable<any>) {
     const received_iter = received[Symbol.iterator]()
@@ -95,6 +94,86 @@ describe('Lazy.prototype.flat', () => {
 
   it('depth 2', () => {
     expect([...Lazy.from(source).flat(2)]).toEqual(source.flat(2))
+  })
+})
+
+describe('Lazy.prototype.concat', () => {
+  it('items', () => {
+    const array = [1, 2, 3].concat(1, 2, 3)
+    const lazy = Lazy.from([1, 2, 3]).concat(1, 2, 3)
+    expect(lazy).toIterateEqually(array)
+  })
+
+  it('lists', () => {
+    const array = [1, 2, 3].concat([1, 2], [3])
+    const lazy = Lazy.from([1, 2, 3]).concat([1, 2], [3])
+    expect(lazy).toIterateEqually(array)
+  })
+
+  it('items and lists', () => {
+    const array = [1, 2, 3].concat([1, 2], 3)
+    const lazy = Lazy.from([1, 2, 3]).concat([1, 2], 3)
+    expect(lazy).toIterateEqually(array)
+  })
+})
+
+describe('Lazy.prototype.forEach', () => {
+  it('items', () => {
+    const array = [1, 2, 3]
+    const lazy = Lazy.from({
+      *[Symbol.iterator]() {
+        yield* [1, 2, 3]
+      },
+    })
+    const func = jest.fn()
+    array.forEach(func)
+    expect(func).toBeCalledTimes(array.length)
+    func.mockReset()
+    lazy.forEach(func)
+    expect(func).toBeCalledTimes(3)
+  })
+})
+
+describe('Lazy.prototype.reduce', () => {
+  it('smoke', () => {
+    const lazy = Lazy.from([1, 2, 3])
+    expect(lazy.reduce((acc, x) => acc + x, 10)).toEqual(16)
+  })
+
+  it('sum with initial', () => {
+    const array = [1, 2, 3]
+    const lazy = Lazy.from({
+      *[Symbol.iterator]() {
+        yield* [1, 2, 3]
+      },
+    })
+    const args = [(acc: number, x: number) => acc + x, 10] as const
+    expect(lazy.reduce(...args)).toEqual(array.reduce(...args))
+  })
+
+  it('sum without initial', () => {
+    const array = [1, 2, 3]
+    const lazy = Lazy.from({
+      *[Symbol.iterator]() {
+        yield* [1, 2, 3]
+      },
+    })
+    const args = [(acc: number, x: number) => acc + x] as const
+    expect(lazy.reduce(...args)).toEqual(array.reduce(...args))
+  })
+
+  it('indices', () => {
+    const array = [1, 2, 3]
+    const lazy = Lazy.from({
+      *[Symbol.iterator]() {
+        yield* [1, 2, 3]
+      },
+    })
+    const args = [
+      (acc: number[], _: any, i: number) => (acc ? [...acc, i] : [i]),
+      [] as number[],
+    ] as const
+    expect(lazy.reduce(...args)).toEqual(array.reduce(...args))
   })
 })
 
