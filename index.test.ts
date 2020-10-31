@@ -313,3 +313,24 @@ describe('Lazy.prototype.includes', () => {
     expect(Lazy.from(lazy123).includes(6)).toBeFalsy()
   })
 })
+
+describe('Lazy.zip', () => {
+  const letters = ['a', 'b', 'c'] as (string | number)[]
+  const numbers = [1, 2, 3] as (string | number)[]
+  it('smoke', () => {
+    const zipped = Lazy.zip(letters, numbers)
+    const zipped_iter = zipped[Symbol.iterator]()
+
+    const first = zipped_iter.next()
+    expect(first.value).toEqual(['a', 1])
+
+    const second = zipped_iter.next()
+    expect(second.value).toEqual(['b', 2])
+
+    const third = zipped_iter.next()
+    expect(third.value).toEqual(['c', 3])
+
+    const end = zipped_iter.next()
+    expect(end.done).toBeTruthy()
+  })
+})

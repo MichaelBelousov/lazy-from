@@ -8,7 +8,7 @@ function isIterable<T>(arg: T | Iterable<T>): arg is Iterable<T> {
 
 /** iterable wrapper for functional programming with lazy composition */
 export default class Lazy<T> implements Iterable<T> {
-  static from<T>(iterable: Iterable<T>): Lazy<T> {
+  public static from<T>(iterable: Iterable<T>): Lazy<T> {
     return new Lazy<T>(iterable)
   }
 
@@ -167,5 +167,25 @@ export default class Lazy<T> implements Iterable<T> {
 
   public find(predicate: (t: T) => boolean): T | undefined {
     for (const item of this) if (predicate(item)) return item
+  }
+
+  /** iterate over the elements of multiple iterables as tuples in sequence
+   * i.e. zip([1,2,3], ['a', 'b', 'c']) => [[1, 'a'], [2, 'b'], [3, 'c']]
+   * (like python's zip)
+   * TODO: research other approaches to typing zip (probably similarly to flat()
+   * people choose to decay to any)
+   */
+  public static zip<I, T extends readonly Iterable<I>[]>(
+    ...iterables: T
+  ): Lazy<I[]> {
+    function* inner() {
+      const iterators = iterables.map(i => i[Symbol.iterator]())
+      while (true) {
+        const values = iterators.map(i => i.next())
+        if (values.some(v => v.done)) break
+        else yield values.map(v => v.value)
+      }
+    }
+    return Lazy.from(inner())
   }
 }
