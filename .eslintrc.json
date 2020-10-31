@@ -16,9 +16,12 @@
   },
   "plugins": [
     "@typescript-eslint",
-    "prettier"
+    "prettier",
+    "jest"
   ],
   "rules": {
-    "prettier/prettier": ["error"]
+    "prettier/prettier": ["error"],
+    "@typescript-eslint/no-this-alias": ["off"],
+    "@typescript-eslint/no-explicit-any": ["off"]
   }
 }

@@ -8,7 +8,7 @@ function isIterable<T>(arg: T | Iterable<T>): arg is Iterable<T> {
 
 /** iterable wrapper for functional programming with lazy composition */
 export default class Lazy<T> implements Iterable<T> {
-  static from<T>(iterable: Iterable<T>) {
+  static from<T>(iterable: Iterable<T>): Lazy<T> {
     return new Lazy<T>(iterable);
   }
 
@@ -18,7 +18,7 @@ export default class Lazy<T> implements Iterable<T> {
     return this.iterable[Symbol.iterator]();
   }
 
-  public filter(predicate: (t: T) => boolean) {
+  public filter<U extends T>(predicate: (t: T) => t is U): Lazy<U> {
     const _this = this;
     return Lazy.from({
       *[Symbol.iterator]() {
@@ -27,7 +27,7 @@ export default class Lazy<T> implements Iterable<T> {
     });
   }
 
-  public map<U>(transform: (t: T) => U) {
+  public map<U>(transform: (t: T) => U): Lazy<U> {
     const _this = this;
     return Lazy.from<U>({
       *[Symbol.iterator]() {
@@ -36,39 +36,26 @@ export default class Lazy<T> implements Iterable<T> {
     });
   }
 
-  public flat(
-    this: Lazy<
-      Iterable<
-        Iterable<Iterable<Iterable<Iterable<Iterable<Iterable<Iterable<T>>>>>>>
-      >
-    >,
-    depth: 7
-  ): Lazy<T>;
-  public flat(
-    this: Lazy<
-      Iterable<Iterable<Iterable<Iterable<Iterable<Iterable<Iterable<T>>>>>>>
-    >,
-    depth: 6
-  ): Lazy<T>;
-  public flat(
-    this: Lazy<Iterable<Iterable<Iterable<Iterable<Iterable<Iterable<T>>>>>>>,
-    depth: 5
-  ): Lazy<T>;
-  public flat(
-    this: Lazy<Iterable<Iterable<Iterable<Iterable<Iterable<T>>>>>>,
-    depth: 4
-  ): Lazy<T>;
-  public flat(
-    this: Lazy<Iterable<Iterable<Iterable<Iterable<T>>>>>,
-    depth: 3
-  ): Lazy<T>;
-  public flat(this: Lazy<Iterable<Iterable<Iterable<T>>>>, depth: 2): Lazy<T>;
-  public flat(this: Lazy<Iterable<Iterable<T>>>, depth?: 1): Lazy<T>;
-  public flat(this: Lazy<Iterable<T>>, depth: 0): Lazy<T>;
+  // prettier-ignore
+  public flat<U>(this: Lazy<Iterable<Iterable<Iterable<Iterable<Iterable<Iterable<Iterable<Iterable<U>>>>>>>>>, depth: 7): Lazy<U>;
+  // prettier-ignore
+  public flat<U>(this: Lazy<Iterable<Iterable<Iterable<Iterable<Iterable<Iterable<Iterable<U>>>>>>>>, depth: 6): Lazy<U>;
+  // prettier-ignore
+  public flat<U>(this: Lazy<Iterable<Iterable<Iterable<Iterable<Iterable<Iterable<U>>>>>>>, depth: 5): Lazy<U>;
+  // prettier-ignore
+  public flat<U>(this: Lazy<Iterable<Iterable<Iterable<Iterable<Iterable<U>>>>>>, depth: 4): Lazy<U>;
+  // prettier-ignore
+  public flat<U>(this: Lazy<Iterable<Iterable<Iterable<Iterable<U>>>>>, depth: 3): Lazy<U>;
+  // prettier-ignore
+  public flat<U>(this: Lazy<Iterable<Iterable<Iterable<U>>>>, depth: 2): Lazy<U>;
+  // prettier-ignore
+  public flat<U>(this: Lazy<Iterable<Iterable<U>>>, depth?: 1): Lazy<U>;
+  // prettier-ignore
+  public flat<U>(this: Lazy<Iterable<U>>, depth: 0): Lazy<U>;
   public flat(depth?: number): Lazy<any>;
-  /** @see Array.prototype.from */
-  public flat(depth = 1) {
+  public flat(depth = 1): Lazy<any> {
     const _this = this;
+    Array.prototype.flat;
     if (depth <= 0) return this;
     else
       return Lazy.from({
@@ -93,7 +80,7 @@ export default class Lazy<T> implements Iterable<T> {
     });
   }
 
-  public forEach(doSomething: (t: T) => void) {
+  public forEach(doSomething: (t: T) => void): void {
     for (const item of this) doSomething(item);
   }
 
@@ -150,23 +137,22 @@ export default class Lazy<T> implements Iterable<T> {
     return !!item.done;
   }
 
-  public sort(...[sortFunc]: Parameters<Array<T>["sort"]>) {
+  public sort(...[sortFunc]: Parameters<Array<T>["sort"]>): Lazy<T> {
     return Lazy.from([...this].sort(sortFunc));
   }
 
-  public get length() {
+  public get length(): number {
     let i = 0;
     for (const item of this) i++;
     return i;
   }
 
-  public includes(t: T) {
+  public includes(t: T): boolean {
     for (const item of this) if (item === t) return true;
     return false;
   }
 
-  public find(predicate: (t: T) => boolean) {
+  public find(predicate: (t: T) => boolean): T | undefined {
     for (const item of this) if (predicate(item)) return item;
-    return false;
   }
 }
