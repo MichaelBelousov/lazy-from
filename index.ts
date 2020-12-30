@@ -25,7 +25,6 @@ export default class Lazy<T> implements Iterable<T> {
     return Lazy.from({
       *[Symbol.iterator]() {
         for (const t of _this) {
-          console.log('yooo!')
           if (predicate(t)) yield t as U
         }
       },
