@@ -41,22 +41,23 @@ export default class Lazy<T> implements Iterable<T> {
   }
 
   // prettier-ignore
-  public flat<U>(this: Lazy<Iterable<Iterable<Iterable<Iterable<Iterable<Iterable<Iterable<Iterable<U>>>>>>>>>, depth: 7): Lazy<U>;
+  public flat<U>(this: Lazy<Iterable<Iterable<Iterable<Iterable<Iterable<Iterable<Iterable<U>>>>>>>>, depth: 7): Lazy<U>
   // prettier-ignore
-  public flat<U>(this: Lazy<Iterable<Iterable<Iterable<Iterable<Iterable<Iterable<Iterable<U>>>>>>>>, depth: 6): Lazy<U>;
+  public flat<U>(this: Lazy<Iterable<Iterable<Iterable<Iterable<Iterable<Iterable<U>>>>>>>, depth: 6): Lazy<U>
   // prettier-ignore
-  public flat<U>(this: Lazy<Iterable<Iterable<Iterable<Iterable<Iterable<Iterable<U>>>>>>>, depth: 5): Lazy<U>;
+  public flat<U>(this: Lazy<Iterable<Iterable<Iterable<Iterable<Iterable<U>>>>>>, depth: 5): Lazy<U>
   // prettier-ignore
-  public flat<U>(this: Lazy<Iterable<Iterable<Iterable<Iterable<Iterable<U>>>>>>, depth: 4): Lazy<U>;
+  public flat<U>(this: Lazy<Iterable<Iterable<Iterable<Iterable<U>>>>>, depth: 4): Lazy<U>
   // prettier-ignore
-  public flat<U>(this: Lazy<Iterable<Iterable<Iterable<Iterable<U>>>>>, depth: 3): Lazy<U>;
+  public flat<U>(this: Lazy<Iterable<Iterable<Iterable<U>>>>, depth: 3): Lazy<U>
   // prettier-ignore
-  public flat<U>(this: Lazy<Iterable<Iterable<Iterable<U>>>>, depth: 2): Lazy<U>;
+  public flat<U>(this: Lazy<Iterable<Iterable<U>>>, depth: 2): Lazy<U>
   // prettier-ignore
-  public flat<U>(this: Lazy<Iterable<Iterable<U>>>, depth?: 1): Lazy<U>;
+  public flat<U>(this: Lazy<Iterable<U>>, depth?: 1): Lazy<U>
+  public flat<U>(this: Lazy<Iterable<U>>): Lazy<U>
   // prettier-ignore
-  public flat<U>(this: Lazy<Iterable<U>>, depth: 0): Lazy<U>;
-  public flat(depth?: number): Lazy<any>
+  public flat<U>(this: Lazy<U>, depth: 0): Lazy<U>
+  public flat(this: Lazy<any>, depth?: number): Lazy<any>
   public flat(depth = 1): Lazy<any> {
     const _this = this
     Array.prototype.flat

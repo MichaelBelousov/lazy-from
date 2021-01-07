@@ -105,6 +105,49 @@ describe('Lazy.prototype.flat', () => {
     )
   })
 
+  it('types', () => {
+    type Equals<T, U> = T extends U ? (U extends T ? true : false) : false
+
+    const depth0Result = Lazy.from<number>([1, 2, 3]).flat(0)
+    type Depth0ResultType = typeof depth0Result
+    const _depth0IsSameType: Equals<Depth0ResultType, Lazy<number>> = true
+
+    const depth1Result1 = Lazy.from<number[]>([
+      [1, 2, 3],
+      [1, 2, 3],
+    ]).flat(1)
+    type Depth1Result1Type = typeof depth1Result1
+    const _depth1IsSameType1: Equals<Depth1Result1Type, Lazy<number>> = true
+
+    const depth1Result2 = Lazy.from<number[][]>([
+      [[1, 2, 3]],
+      [[1, 2, 3]],
+    ]).flat(1)
+    type Depth1Result2Type = typeof depth1Result2
+    const _depth1IsSameType2: Equals<Depth1Result2Type, Lazy<number[]>> = true
+
+    const depth1Result3 = Lazy.from<Iterable<Iterable<number>>>([
+      [[1, 2, 3]],
+      [[1, 2, 3]],
+    ]).flat(1)
+    type Depth1Result3Type = typeof depth1Result3
+    const _depth1IsSameType3: Equals<
+      Depth1Result3Type,
+      Lazy<Iterable<number>>
+    > = true
+
+    const doubleNested = [[[1, 2, 3]], [[1, 2, 3]]]
+    const depth1Result4 = Lazy.from(doubleNested).flat(1)
+    type Depth1Result4Type = typeof depth1Result4
+    const _depth1IsSameType4: Depth1Result4Type extends Lazy<Iterable<number>>
+      ? true
+      : false = true
+  })
+
+  it('depth 0', () => {
+    expect(Lazy.from(source).flat(0)).toIterateEqually(source.flat(0))
+  })
+
   it('depth 1', () => {
     expect([...Lazy.from(source).flat()]).toEqual(source.flat())
   })
