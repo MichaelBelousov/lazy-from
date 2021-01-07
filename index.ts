@@ -192,4 +192,20 @@ export default class Lazy<T> implements Iterable<T> {
     }
     return Lazy.from(inner())
   }
+
+  public unique(): Lazy<T>
+  public unique<K>(key: (t: T) => K): Lazy<T>
+  public unique<K = T>(key: (t: T) => K = (t: T) => (t as any) as K): Lazy<T> {
+    const _this = this
+    return Lazy.from(
+      (function* () {
+        const visited = new Set<K>()
+        for (const item of _this)
+          if (!visited.has(key(item))) {
+            yield item
+            visited.add(key(item))
+          }
+      })()
+    )
+  }
 }

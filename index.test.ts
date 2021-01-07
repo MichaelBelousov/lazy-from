@@ -29,7 +29,11 @@ expect.extend({
       ) {
         return {
           message: () =>
-            `index ${iter_count} had differing values \`${received_item.value}\` (received) and \`${expected_item.value}\` (expected)`,
+            `index ${iter_count} had differing values \`${JSON.stringify(
+              received_item.value
+            )}\` (received) and \`${JSON.stringify(
+              expected_item.value
+            )}\` (expected)`,
           pass: false,
         }
       }
@@ -350,5 +354,28 @@ describe('Lazy.zip', () => {
 
     const end = zipped_iter.next()
     expect(end.done).toBeTruthy()
+  })
+})
+
+describe('Lazy.unique', () => {
+  const notUnique = [
+    {
+      val: 1,
+      key: 'test1',
+    },
+    {
+      val: 2,
+      key: 'test2',
+    },
+    {
+      val: 3,
+      key: 'test1',
+    },
+  ]
+  it('smoke', () => {
+    expect(Lazy.from(notUnique).unique(t => t.key)).toIterateEqually(
+      notUnique.filter((x, i) => i !== 2)
+    )
+    expect(Lazy.from(notUnique).unique(t => t.val)).toIterateEqually(notUnique)
   })
 })
